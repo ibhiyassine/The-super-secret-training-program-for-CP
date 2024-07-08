@@ -1,0 +1,51 @@
+Prefix Sum is used mainly to get the value of a range efficiently (sum or difference)
+
+If we get to do normal looping and summing through a range, the complexity is O(n) for 1D array and O(n*m) for 2D array per query, so for a total of Q queries the overall complexity is O(Q * n) or O(Q * n * m)
+
+with prefix sum, we sum the elements of the arrays as follow:
+    * 1D array (overall complexity O(n)): pre[0] = arr[0]; 
+                pre[i] = pre[i - 1] + arr[i];
+
+    
+    * 2D array (overall complexity O(n * m)): pre[0][0] = arr[0][0]; 
+                pre[0][j] = pre[0][j - 1] + arr[0][j - 1]; 
+                pre[i][0] = pre[i - 1][0] + arr[i][0]; 
+                pre[i][j] = pre[i - 1][j] + pre[j - 1][i] - pre[i - 1][j - 1] + arr[i][j]
+
+This way to get the value of a range we do as follow:
+    * 1D array (from arr[l] to arr[r]): 
+        if (l == 0) sum = pre[r]
+        else sum = pre[r] - pre[l - 1]
+    
+
+    *2D array (we define the top-left corner arr[l1][r1] and the bottom-right corner arr[l2][r2]):
+        if (l1 == 0 && r1 == 0) sum = pre[l2][r2]
+        else if (l1 == 0) sum = pre[l2][r2] - pre[l1][r1 - 1]
+        else if (r1 == 0) sum = pre[l2][r2] - pre[l1 - 1][r1]
+        else sum = pre[l2][r2] - pre[l1 - 1][r1] - pre[l1][r1 - 1] + pre[l1 - 1][r1 - 1]
+    
+    As you can see the complexity to get the sum is now O(1)
+
+This way for Q queries the complexity has become O(Q)
+
+Suprisingly it's like we have made the overall complexity O(Q + ~) instead of O(Q * ~) which is very great
+
+Another use case to this is to use it (somehow) to make some adding/ substracting operation to a range efficiently
+
+Suppose we want to add 1 to all the elements within a range, that would take a complexity of O(n) which is huge, for Q queries this become O(Q * n)
+A way to make this faster is to use a difference array, which the opposite of a prefix sum.
+
+To create a difference array we do as follow:
+    * 1D array: dif[0] = arr[0];
+                dif[i] = dif[i - 1] - arr[i]
+    
+    * 2D array: ( figure it yourself :) )
+
+This way if we want to add 1 in a range(l, r + 1):
+we just go to the difference array and : add 1 in pre[l] and -1 in pre[r + 1] [we repeat this operation Q times depending of the number of queries]
+Then, this way if we take the prefix sum of that array we get what we wanted.
+
+Now the complexity has become O(Q + ~) instead of O(Q * ~)
+
+
+These two use cases are very important to get because it makes the complexity of the operation much better, mainly the first use case where we need to know the number of elements in a range. (Check problem5 where if we didn't use prefix sum the complexity will be O(n^4) but with prefix sum we managed to make it O(n^2) by knowing the number of cows above a point and below it).
