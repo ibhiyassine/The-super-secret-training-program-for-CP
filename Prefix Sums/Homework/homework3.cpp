@@ -1,0 +1,1 @@
+// Problem link: https://zibada.guru/gcj/ks2020c/problems/#D
