@@ -3,23 +3,34 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-int n;
-unsigned long long Big_Square;
-unsigned long long Better_Square;
 
-unsigned long long Areas(vector<vector<long long>> &positions_x, vector<vector<long long>> &positions_y){
-    unsigned long long A1, A2, result = Big_Square;
-    for(int i = 1; i < n; i++){
-        // Calculating A1
-        long long min_x = positions_x[0][0], max_x = positions_x[i - 1][0], min_y = positions_y[0][1], max_y = positions_y[i - 1][1];
-        A1 = (max_y - min_y) * (max_x - min_x);
-        // Calculating A2
-        min_x = positions_x[i][0], max_x = positions_x[n - 1][0], min_y = positions_y[i][1], max_y = positions_y[n - 1][1];
-        A2 = (max_y - min_y) * (max_x - min_x);
-        // Calculating result
-        result = min(result, (A1 + A2));
+using ll = long long;
+
+int n;
+vector<pair<ll, ll>> cows;
+
+pair<ll, ll> upd(pair<ll, ll> pre, ll b){
+    return {min(pre.first, b), max(pre.second, b)};
+}
+
+ll search(){
+    ll answer = 0;
+    sort(cows.begin(), cows.end());
+    vector<pair<ll, ll>> pref(n), suff(n);
+    // Updating pref
+    pref[0] = {cows[0].second, cows[0].second};
+    for(int i = 1; i < n; i++){pref[i] = upd(pref[i - 1], cows[i].second);}
+    // Updating suff
+    suff[n - 1] = {cows[n - 1].second, cows[n - 1].second};
+    for(int i = n - 2; i >= 0; i--){suff[i] = upd(suff[i + 1], cows[i].second);}
+    // The big rectangle
+    ll Big = (cows[n - 1].first - cows[0].first) * (pref[n - 1].second - pref[n - 1].first);
+    for(int i = 0; i < n - 1; i++){
+        ll first_rectangle  = (cows[i].first - cows[0].first) * (pref[i].second - pref[i].first);
+        ll second_rectange = (cows[n - 1].first - cows[i + 1].first) * (suff[i + 1].second - suff[i + 1].first);
+        answer = max(answer, Big - (first_rectangle + second_rectange));
     }
-    return result;
+    return answer;
 
 
 }
@@ -27,19 +38,16 @@ unsigned long long Areas(vector<vector<long long>> &positions_x, vector<vector<l
 
 int main(){
     cin >> n;
-    vector<vector<long long>> positions_x(n, vector<long long>(2, 0));
-    vector<vector<long long>> positions_y(n, vector<long long>(2, 0));
+    cows.resize(n);
     for(int i = 0; i < n; i++){
-        cin >> positions_x[i][0] >> positions_x[i][1];
-        positions_y[i][0] = positions_x[i][0]; positions_y[i][1] = positions_x[i][1];
+        cin >> cows[i].first >> cows[i].second;
     }
-    sort(positions_x.begin(), positions_x.end());
-    sort(positions_y.begin(), positions_y.end(), [](vector<long long> a, vector<long long> b){return a[1] < b[1];});
-    long long min_x = positions_x[0][0], max_x = positions_x[n - 1][0], min_y = positions_y[0][1], max_y = positions_y[n - 1][1];
-    Big_Square = (max_y - min_y) * (max_x - min_x);
-    Better_Square = Areas(positions_x, positions_y);
-    
-    cout << Big_Square - Better_Square << endl;
+    ll answer = 0;
+    answer = max(answer, search());
+    for(auto& x: cows){swap(x.first, x.second);}
+    answer = max(answer, search());
+
+    cout << answer << endl;
 
     return 0;
 }
