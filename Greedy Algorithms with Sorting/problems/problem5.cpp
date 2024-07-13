@@ -1,0 +1,1 @@
+// Problem link: https://csacademy.com/contest/archive/task/sure-bet
